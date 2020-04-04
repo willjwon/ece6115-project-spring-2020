@@ -22,3 +22,73 @@ SOFTWARE. -->
 
 # SystolicArray
 SystolicArray implementation using Bluespec System Verilog
+
+## Import
+```bluespec
+import SystolicArrayType::*;
+import SystolicArray::*;
+```
+
+## Instantiation and Setup
+```bluespec
+// SystolicArray(Size, DataType)
+SystolicArray#(8, Bits#(32)) systolicArray <- mkSystolicArray;  // 8x8 SystolicArray using 32-bit Integer
+```
+
+Should discard rightmost value.
+```bluespec
+for (Integer i = 0; i < 8; i = i + 1) begin
+    rule discardRightmostValues;
+        let unusedValue <- systolicArray.east[i].get;
+    endrule
+end
+```
+
+## Loading Weight
+```bluespec
+systolicArray.control.setStateTo(Load);  // Takes 1 cycle
+
+// 1 cycle later, put weights using north port
+for (Integer i = 0; i < 8; i = i + 1) begin
+    systolicArray.north[i].put(1);
+end
+```
+
+## Compute
+```bluespec
+systolicArray.control.setStateTo(Compute);  // Takes 1 cycle
+
+// 1 cycle later: put inputActivation to west[0], put initial psum to north ports
+systolicArray.west[0].put(3);
+for (Integer i = 0; i < 8; i = i + 1) begin
+    systolicArray.north[i].put(0);
+end
+
+// following cycles: put inputActivation to west[1], west[2], ...
+// 1 cycle later
+systolicArray.west[1].put(2);
+
+// 1 cycle later
+systolicArray.west[2].put(3);
+
+...
+systolicArray.west[7].put(3);
+
+// 1 cycle later
+systolicArray.west[0].put(5);
+for (Integer i = 0; i < 8; i = i + 1) begin
+    systolicArray.north[i].put(0);
+end
+```
+
+## Get result
+```bluespec
+for (Integer i = 0; i < 8; i = i + 1) begin
+    let result <- systolicArray.south[i].get;
+end
+```
+
+## Reset
+```bluespec
+systolicArray.control.setStateTo(Reset);
+```
