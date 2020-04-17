@@ -33,7 +33,7 @@ Bit#(32) maxCycle = 1000;
 (* synthesize *)
 module mkSystolicArrayTest();
     // Unit Under Test
-    SystolicArray#(4, Bit#(32)) systolicArray <- mkSystolicArray;
+    SystolicArray#(4, 3, Bit#(32)) systolicArray <- mkSystolicArray;
     
 
     // Testbench Environment
@@ -52,9 +52,9 @@ module mkSystolicArrayTest();
 
 
     // Systolic Array setup
-    for (Integer column = 0; column < 4; column = column + 1) begin
+    for (Integer row = 0; row < 3; row = row + 1) begin
         rule discardRightmostValue;
-            let discardValue <- systolicArray.east[column].get;
+            let discardValue <- systolicArray.east[row].get;
         endrule
     end
     
@@ -69,7 +69,6 @@ module mkSystolicArrayTest();
         // Loaded weight:
         // 2 3 4 x
         // 3 4 5 x
-        // x x x x
         // x x x x
         //
         for (Integer i = 0; i < 3; i = i + 1) begin
@@ -170,7 +169,7 @@ module mkSystolicArrayTest();
     //      4 9 16 = 29
     //      6 12 20 = 38
     //
-    for (Integer i = 0; i < 3; i = i + 1) begin
+    for (Integer i = 0; i < 4; i = i + 1) begin
         rule printResult if (cycle> 122);
             let southResult <- systolicArray.south[i].get;
             $display("cycle %d, south %d -> %d", cycle, i, southResult);

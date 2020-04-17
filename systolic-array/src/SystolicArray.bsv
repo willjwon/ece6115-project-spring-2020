@@ -41,35 +41,35 @@ interface SystolicArrayControlPort;
     method Action setStateTo(SystolicArrayState newState);
 endinterface
 
-interface SystolicArray#(numeric type systolicArrayWidth, type dataType);
+interface SystolicArray#(numeric type systolicArrayWidth, numeric type systolicArrayHeight, type dataType);
     interface Vector#(systolicArrayWidth, SystolicArrayIngressPort#(dataType)) north;
-    interface Vector#(systolicArrayWidth, SystolicArrayIngressPort#(dataType)) west;
+    interface Vector#(systolicArrayHeight, SystolicArrayIngressPort#(dataType)) west;
     interface Vector#(systolicArrayWidth, SystolicArrayEgressPort#(dataType)) south;
-    interface Vector#(systolicArrayWidth, SystolicArrayEgressPort#(dataType)) east;
+    interface Vector#(systolicArrayHeight, SystolicArrayEgressPort#(dataType)) east;
     interface SystolicArrayControlPort control;
 endinterface
 
 
-module mkSystolicArray(SystolicArray#(systolicArrayWidth, dataType))
+module mkSystolicArray(SystolicArray#(systolicArrayWidth, systolicArrayHeight, dataType))
 provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
     /**
     * Systolic Array
     */
 
     // Submodules
-    Vector#(systolicArrayWidth, Vector#(systolicArrayWidth, ProcessingElement#(dataType))) processingElements <- replicateM(replicateM(mkProcessingElement));
+    Vector#(systolicArrayHeight, Vector#(systolicArrayWidth, ProcessingElement#(dataType))) processingElements <- replicateM(replicateM(mkProcessingElement));
 
 
     // Combinational Logics
     // 1. connect: column[0-(width-2)].east -> column[1-(width-1)].west
     // 2. connect: row[0-(width-2)].south -> row[0-(width-1)].north
-    for (Integer row = 0; row < valueOf(systolicArrayWidth); row = row + 1) begin
+    for (Integer row = 0; row < valueOf(systolicArrayHeight); row = row + 1) begin
         for (Integer column = 0; column < valueOf(systolicArrayWidth) - 1; column = column + 1) begin
             mkConnection(processingElements[row][column].east.get, processingElements[row][column + 1].west.put);
         end
     end
 
-    for (Integer row = 0; row < valueOf(systolicArrayWidth) - 1; row = row + 1) begin
+    for (Integer row = 0; row < valueOf(systolicArrayHeight) - 1; row = row + 1) begin
         for (Integer column = 0; column < valueOf(systolicArrayWidth); column = column + 1) begin
             mkConnection(processingElements[row][column].south.get, processingElements[row + 1][column].north.put);
         end
@@ -77,12 +77,13 @@ provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
 
 
     // Interfaces
-    Integer lastIndex = valueOf(systolicArrayWidth) - 1;
+    Integer lastRowIndex = valueOf(systolicArrayHeight) - 1;
+    Integer lastColumnIndex = valueOf(systolicArrayWidth) - 1;
 
     Vector#(systolicArrayWidth, SystolicArrayIngressPort#(dataType)) northDefinition = newVector;
-    Vector#(systolicArrayWidth, SystolicArrayIngressPort#(dataType)) westDefinition = newVector;
+    Vector#(systolicArrayHeight, SystolicArrayIngressPort#(dataType)) westDefinition = newVector;
     Vector#(systolicArrayWidth, SystolicArrayEgressPort#(dataType)) southDefinition = newVector;
-    Vector#(systolicArrayWidth, SystolicArrayEgressPort#(dataType)) eastDefinition = newVector;
+    Vector#(systolicArrayHeight, SystolicArrayEgressPort#(dataType)) eastDefinition = newVector;
 
     for (Integer column = 0; column < valueOf(systolicArrayWidth); column = column + 1) begin
         northDefinition[column] = interface SystolicArrayIngressPort#(dataType)
@@ -93,13 +94,13 @@ provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
 
         southDefinition[column] = interface SystolicArrayEgressPort#(dataType)
             method ActionValue#(dataType) get;
-                let southValue <- processingElements[lastIndex][column].south.get;
+                let southValue <- processingElements[lastRowIndex][column].south.get;
                 return southValue;
             endmethod
         endinterface;
     end
 
-    for (Integer row = 0; row < valueOf(systolicArrayWidth); row = row + 1) begin
+    for (Integer row = 0; row < valueOf(systolicArrayHeight); row = row + 1) begin
         westDefinition[row] = interface SystolicArrayIngressPort#(dataType)
             method Action put(dataType data);
                 processingElements[row][0].west.put(data);
@@ -108,7 +109,7 @@ provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
 
         eastDefinition[row] = interface SystolicArrayEgressPort#(dataType)
             method ActionValue#(dataType) get;
-                let eastValue <- processingElements[row][lastIndex].east.get;
+                let eastValue <- processingElements[row][lastColumnIndex].east.get;
                 return eastValue;
             endmethod
         endinterface;
@@ -122,7 +123,7 @@ provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
     interface control = interface SystolicArrayControlPort
         method Action setStateTo(SystolicArrayState newState);
             // Set all PEs to the given newState.
-            for (Integer row = 0; row < valueOf(systolicArrayWidth); row = row + 1) begin
+            for (Integer row = 0; row < valueOf(systolicArrayHeight); row = row + 1) begin
                 for (Integer column = 0; column < valueOf(systolicArrayWidth); column = column + 1) begin
                     processingElements[row][column].control.setStateTo(newState);
                 end
