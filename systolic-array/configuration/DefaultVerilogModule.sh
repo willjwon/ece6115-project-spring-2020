@@ -26,5 +26,5 @@
 # './' denotes the directory containing compilation script.
 # This assumes there's synthesizable .bsv module ./src/Adder.bsv
 # That implements synthesizable module mkAdder.
-DEFAULT_VERILOG_MODULE_DIRECTORY="./src"
-DEFAULT_VERILOG_MODULE="SystolicArray"
+DEFAULT_VERILOG_MODULE_DIRECTORY="./instance"
+DEFAULT_VERILOG_MODULE="SystolicArrayInstance"
