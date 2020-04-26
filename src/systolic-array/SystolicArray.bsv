@@ -21,10 +21,9 @@
 // SOFTWARE.
 
 
-import Fifo::*;
+
 import Vector::*;
 import Connectable::*;
-
 import SystolicArrayType::*;
 import ProcessingElement::*;
 

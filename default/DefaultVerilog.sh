@@ -1,8 +1,7 @@
-#!/bin/bash
-
 # MIT License
 
-# Copyright (c) 2020 William Won (william.won@gatech.edu)
+# Copyright (c) 2020 Synergy Lab | Georgia Institute of Technology
+# Author: William Won (william.won@gatech.edu)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +22,6 @@
 # SOFTWARE.
 
 
-# './' denotes the directory containing compilation script.
-# This assumes there's synthesizable .bsv module ./src/Adder.bsv
-# That implements synthesizable module mkAdder.
-DEFAULT_VERILOG_MODULE_DIRECTORY="./instance"
-DEFAULT_VERILOG_MODULE="SystolicArrayInstance"
+# `DEFAULT_VERILOG_MODULE` defined in `DEFAULT_VERILOG_DIR/DEFAULT_VERILOG_MODULE.bsv` will be compiled into verilog.
+DEFAULT_VERILOG_DIR="instance"
+DEFAULT_VERILOG_MODULE="AdderInstance"

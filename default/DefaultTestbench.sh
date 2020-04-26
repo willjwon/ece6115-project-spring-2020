@@ -1,8 +1,7 @@
-#!/bin/bash
-
 # MIT License
 
-# Copyright (c) 2020 William Won (william.won@gatech.edu)
+# Copyright (c) 2020 Synergy Lab | Georgia Institute of Technology
+# Author: William Won (william.won@gatech.edu)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +22,6 @@
 # SOFTWARE.
 
 
-# './' denotes the directory containing compilation script.
-# This assumes there's .bsv testbench module ./testbench/AdderTest.bsv
-# That implements synthesizable testbench mkAdderTest().
-DEFAULT_TEST_DIRECTORY="./testbench"
-DEFAULT_TEST_MODULE="SystolicArray"
+# `DEFAULT_TEST_MODULE` defined in `DEFAULT_TEST_DIR/DEFAULT_TEST_MODULE.bsv` will be compiled and tested.
+DEFAULT_TEST_DIR="testbench"
+DEFAULT_TEST_MODULE="NetworkTest"

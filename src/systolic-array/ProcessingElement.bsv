@@ -21,7 +21,8 @@
 // SOFTWARE.
 
 
-import Fifo::*;
+import FIFOF::*;
+import SpecialFIFOs::*;
 
 import SystolicArrayType::*;
 
@@ -56,10 +57,10 @@ provisos (Bits#(dataType, dataTypeBitLength), Arith#(dataType));
     */
 
     // Input and output fifos
-    Fifo#(1, dataType) northFifo <- mkBypassFifo;
-    Fifo#(1, dataType) westFifo <- mkBypassFifo;
-    Fifo#(1, dataType) southFifo <- mkPipelineFifo;
-    Fifo#(1, dataType) eastFifo <- mkPipelineFifo;
+    FIFOF#(dataType) northFifo <- mkBypassFIFOF;
+    FIFOF#(dataType) westFifo <- mkBypassFIFOF;
+    FIFOF#(dataType) southFifo <- mkPipelineFIFOF;
+    FIFOF#(dataType) eastFifo <- mkPipelineFIFOF;
 
     // Systolic array state
     Reg#(SystolicArrayState) processingElementState <- mkReg(Reset);
