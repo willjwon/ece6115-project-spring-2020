@@ -10,13 +10,16 @@ typedef struct {
 } Data deriving (Bits, Eq);
 
 // Mesh structure
-typedef 4 MeshWidth;
-typedef 4 MeshHeight;
+typedef 3 MeshWidth;
+typedef 3 MeshHeight;
 
 // VC
 typedef 2 VCsCount;
-typedef 1 VCDepth;
+typedef 2 VCDepth;
 
 // Routing
 typedef enum { XY, YX } RoutingAlgorithms deriving (Bits, Eq);
 RoutingAlgorithms currentRoutingAlgorithm = XY;
+
+// Message
+typedef 4 MessageLength;

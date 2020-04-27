@@ -32,26 +32,27 @@ module mkCPU(CPU);
     // Submodule
     let nic <- mkCPUNIC;
     RWire#(Bool) startSignal <- mkRWire;
-    Reg#(Bit#(32)) sendReg <- mkReg(5);
+    RWire#(Bool) canSend <- mkRWire;
+    Reg#(Bit#(32)) sendReg <- mkReg(fromInteger(valueOf(MessageLength)));
 
 
     // Rule
     rule incrementSendReg;
         if (isValid(startSignal.wget)) begin
             sendReg <= 0;    
-        end else if (sendReg >= 4) begin
-            sendReg <= 4;
-        end else begin
+        end else if (sendReg >= fromInteger(valueOf(MessageLength))) begin
+            sendReg <= fromInteger(valueOf(MessageLength));
+        end else if (isValid(canSend.wget)) begin
             sendReg <= sendReg + 1;
         end
     endrule
 
-    rule sendBody if (!isValid(startSignal.wget) && (sendReg < 3));
+    rule sendBody if (isValid(canSend.wget) && !isValid(startSignal.wget) && (sendReg < fromInteger(valueOf(MessageLength) - 1)));
         nic.ingressPort.putBody(sendReg);
     endrule
 
-    rule sendTail if (!isValid(startSignal.wget) && (sendReg == 3));
-        nic.ingressPort.putTail(3);
+    rule sendTail if (isValid(canSend.wget) && !isValid(startSignal.wget) && (sendReg == fromInteger(valueOf(MessageLength) - 1)));
+        nic.ingressPort.putTail(sendReg);
     endrule
 
     
@@ -63,17 +64,15 @@ module mkCPU(CPU);
             nic.controlPort.initialize(xIdx, yIdx);
         endmethod
 
-        method Action startSend(Data data, XIdx xDest, YIdx yDest);
+        method Action startSend(Data data, XIdx xDest, YIdx yDest) if (sendReg == fromInteger(valueOf(MessageLength)));
             nic.ingressPort.putHead(data, xDest, yDest);
             startSignal.wset(True);
         endmethod
-
-
     endinterface;
 
     interface ingressPort = interface CPUIngressPort
         method Action putCredit(CreditSignal creditSignal);
-            noAction;
+            canSend.wset(True);
         endmethod
     endinterface;
 
