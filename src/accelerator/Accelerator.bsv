@@ -7,6 +7,7 @@ import CreditType::*;
 import CreditUnit::*;
 import Connectable::*;
 import CPU::*;
+import Compute::*;
 
 
 interface AcceleratorControlPort;
@@ -24,6 +25,7 @@ module mkAccelerator(Accelerator);
     // Submodule
     let network <- mkNetwork;
     let cpu <- mkCPU;
+    // Vector#(MeshHeight, Vector#(MeshWidth, Compute)) computeNodes <- replicateM(replicateM(mkCompute));
 
     Reg#(Bool) inited <- mkReg(False);
     Reg#(Bit#(32)) sendReg <- mkReg(0);
@@ -100,17 +102,32 @@ module mkAccelerator(Accelerator);
     // Get flit
     for (Integer i = 0; i < valueOf(MeshHeight); i = i + 1) begin
         for (Integer j = 0; j<valueOf(MeshWidth); j = j + 1) begin
-            rule getFlit if (inited);
-                let flit <- network.egressPort[i][j].getFlit;
+            if (i == 1 && j == 1) begin
+                // CPU
+                rule getFlit if (inited);
+                    let flit <- network.egressPort[i][j].getFlit;
+                    // cpu.ingressPort.putFlit(flit);
 
-                if (flit.flitType == Tail || flit.flitType == HeadTail) begin
-                    creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: True});
-                end else begin
-                    creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: False});
-                end
+                    if (flit.flitType == Tail || flit.flitType == HeadTail) begin
+                        creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: True});
+                    end else begin
+                        creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: False});
+                    end        
+                endrule
+            end else begin
+                let compute <- mkCompute;
 
-                $display("network received (type: %d, payload: %d) at (%d, %d).", flit.data.dataType, flit.data.payload, j, i);
-            endrule
+                rule getFlit if (inited);
+                    let flit <- network.egressPort[i][j].getFlit;
+                    compute.ingressPort.putFlit(flit);
+
+                    if (flit.flitType == Tail || flit.flitType == HeadTail) begin
+                        creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: True});
+                    end else begin
+                        creditUnits[i][j].putCredit(tagged Valid CreditSignal_{vc: flit.vc, isTailFlit: False});
+                    end        
+                endrule
+            end
         end
     end
 
