@@ -29,16 +29,4 @@ module mkAcceleratorTest();
         $display("[Finish] Cycle %d reached.", maxCycle);
         $finish(0);
     endrule
-
-
-    // Test cases
-    // rule start if (inited && (cycle % 5 == 0));
-    //     cpu.controlPort.startSend(Data{dataType: InputActivation, payload: 7}, 2, 1);
-    // endrule
-
-
-    // rule printFlit if (inited);
-    //     let flit <- cpu.egressPort.getFlit;
-    //     $display("Received: (%d) (%d, %d) (%d, %d)", flit.flitType, flit.data.dataType, flit.data.payload, flit.routeInfo.xHops, flit.routeInfo.yHops);
-    // endrule
 endmodule

@@ -15,7 +15,7 @@ typedef 3 MeshHeight;
 
 // VC
 typedef 2 VCsCount;
-typedef 2 VCDepth;
+typedef 1 VCDepth;
 
 // Routing
 typedef enum { XY, YX } RoutingAlgorithms deriving (Bits, Eq);
