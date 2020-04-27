@@ -2,7 +2,12 @@ import Vector::*;
 
 
 // Payload
-typedef Bit#(32) Data;
+typedef enum { Weight, InputActivation, OutputActivation } DataType deriving (Bits, Eq);
+typedef Bit#(32) PayloadType;
+typedef struct {
+    DataType dataType;
+    PayloadType payload;
+} Data deriving (Bits, Eq);
 
 // Mesh structure
 typedef 4 MeshWidth;

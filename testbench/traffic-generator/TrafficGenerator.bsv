@@ -19,7 +19,7 @@ module mkUnifornRandomTrafficGenerator(TrafficGenerator);
     // Submodule
     Randomize#(XIdx) xRandomizer <- mkConstrainedRandomizer(0, fromInteger(valueOf(MeshWidth) - 1));
     Randomize#(YIdx) yRandomizer <- mkConstrainedRandomizer(0, fromInteger(valueOf(MeshHeight) - 1));
-    Randomize#(Data) injectionRandomizer <- mkConstrainedRandomizer(0, 99); 
+    Randomize#(Bit#(32)) injectionRandomizer <- mkConstrainedRandomizer(0, 99); 
 
     Reg#(XIdx) xIdx <- mkRegU;
     Reg#(YIdx) yIdx <- mkRegU;
@@ -28,7 +28,7 @@ module mkUnifornRandomTrafficGenerator(TrafficGenerator);
 
     Reg#(Bool) inited <- mkReg(False);
     Reg#(Bool) startInit <- mkReg(False);
-    Reg#(Data) initReg <- mkReg(0);
+    Reg#(Bit#(32)) initReg <- mkReg(0);
 
 
     // Rule
